@@ -1,0 +1,25 @@
+* In fast mode, diff test2.xml to test3.xml in "merged" mode:
+Text-moved-here should not be used, instead deleted-text. How to detect?
+
+
+* Algorithm improvement: look at the related-to lists of both nodes, to avoid
+matching
+	<short>Whether to print the page URL in the header</short>
+	<long>Whether to print the page URL in the header</long>
+
+
+* Add sub-or-superstring modification, since users are very interested in that,
+and this should be possible without losing too much performance.
+
+
+* Make writer a runtime choice, not a compile time
+
+
+* Specify merged format closely
+
+
+* Catch and handle namespace clashes - you can't run ssddiff on ssddiff
+results currently!
+
+
+* Put dummy nodes in XUpdate into a special namespace?
