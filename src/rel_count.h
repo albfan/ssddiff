@@ -81,6 +81,10 @@ public:
 	/** \brief dumping helper */
 	/** \param out stream to be dumped to */
 	static void dumpIndex(std::ostream &out);
+	/** \brief calc maximum retaintable prediction
+	 *  \param map1 relation counts in first document
+	 *  \param map2 relation counts in second document */
+	static int calc_max_retained(hash_map<RelEqClass, int, hash_releqc>& map1, hash_map<RelEqClass, int, hash_releqc>& map2);
 };
 
 }

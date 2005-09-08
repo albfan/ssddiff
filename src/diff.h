@@ -92,6 +92,8 @@ public:
 	int cost;
 	/** \brief how many nodes have been matched */
 	int length;
+	/** \brief number of retained relations */
+	int retained;
 	/** \brief state is a solution state */
 	/** set if there are no unmatched nodes left,
 	 *  so this is in fact a solution */
@@ -115,11 +117,12 @@ public:
 	 * \param p "iterator" to the next node to be processed
 	 * \param a list of node assignments with relcount already increased
 	 * \param cr remaining credits for this state */
-	DiffDijkstraState(int c, int l, NodeVec::const_iterator p, NodeAssignments* a, RelCount* cr) :
+	DiffDijkstraState(int c, int l, int r, NodeVec::const_iterator p, NodeAssignments* a, RelCount* cr) :
 #ifdef VERBOSE_SEQCOUNT
 		seq(0),
 #endif
-		cost(c), length(l), complete(false), iter(p), ass(a), credit(cr) {};
+		cost(c), length(l), retained(r),
+		complete(false), iter(p), ass(a), credit(cr) {};
 	/** \brief Destructor that releases referenced data */
 	~DiffDijkstraState() { if (ass && ass->release()) delete(ass); if (credit) delete(credit); }
 	/** \brief test if node n1 is assigned in the current state */
@@ -139,7 +142,8 @@ public:
 	 * \return comparision result */
 	bool operator<(const DiffDijkstraState& other) const {
 		return (cost != other.cost) ? (cost < other.cost) :
-		       (length > other.length);
+		  (retained != other.retained) ? (retained > other.retained) :
+		  (length > other.length);
 	};
 };
 
@@ -161,6 +165,10 @@ private:
 	/** \brief sequence counting */
 	int seq;
 #endif
+	/** \brief best retained value so far */
+	int best_retained;
+	/** \brief maximum number of relations that can be retained */
+	int max_retained;
 	/** \brief number of steps done (i.e. nodes expanded) in the search */
 	int steps;
 	/** \brief working queue */

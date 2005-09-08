@@ -137,4 +137,17 @@ void RelCount::dumpIndex(std::ostream &out) {
 	}
 }
 
+int RelCount::calc_max_retained(hash_map<RelEqClass, int, hash_releqc>& map1, hash_map<RelEqClass, int, hash_releqc>& map2) {
+	hash_map<RelEqClass, int, hash_releqc>::iterator i1, i2;
+	int max_retained=0;
+	
+	for (i1 = map1.begin(); i1 != map1.end(); i1++) {
+		i2 = map2.find(i1->first);
+
+		if (i2 != map2.end()) {
+			max_retained += min(i1->second, i2->second);
+		}
+	}
+	return max_retained;
+}
 }

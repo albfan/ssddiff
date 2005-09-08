@@ -26,6 +26,7 @@ DiffDijkstra::DiffDijkstra(Doc& eins, Doc& zwei)
 #ifdef VERBOSE_SEQCOUNT
 		seq(0),
 #endif
+		best_retained(0), max_retained(0),
 		steps(0), result(NULL) {
 }
 
@@ -38,7 +39,8 @@ process_relations(
 		Node* n1, Node* n2, RelCount* rc,
 		int dir, /* "up" or "down" relations */
 		const DiffDijkstraState* state,
-		map<NodeEqClass,int>** c /* return parameter: local credits */) {
+		map<NodeEqClass,int>** c /* return parameter: local credits */,
+		int* retained) {
 
 	NodeVec* rn1;
 	NodeVec* rn2;
@@ -82,6 +84,7 @@ process_relations(
 			if (f2 != rel.end()) {
 				/* we have the matching node on the other side, too - optimal */
 				/* no costs, and one node/relation less to care for */
+				(*retained)++;
 				rel.erase(f2);
 			} else {
 				/* we cannot retain this relation */
@@ -130,6 +133,7 @@ process_relations(
 DiffDijkstraState*
 DiffDijkstra::makeState(const DiffDijkstraState* state, NodeVec::const_iterator n1, Node* n2) {
 	int cost=0;
+	int retained=0;
 	RelCount* rc = new RelCount(*(state->credit));
 #ifdef VERBOSE_COSTS_2
 	cout << "Calculating costs for matching " << (**n1) << " with ";
@@ -139,7 +143,7 @@ DiffDijkstra::makeState(const DiffDijkstraState* state, NodeVec::const_iterator 
 
 //	NodeVec::iterator i1, i2;
 	map<NodeEqClass,int>* count;
-	cost += process_relations(*n1, n2, rc, 1, state, &count);
+	cost += process_relations(*n1, n2, rc, 1, state, &count, &retained);
 #ifdef VERBOSE_COSTS_3
 	cout << "Costs after process_relations down " << cost << endl;
 #endif
@@ -156,7 +160,7 @@ DiffDijkstra::makeState(const DiffDijkstraState* state, NodeVec::const_iterator 
 	//count.clear();
 	delete(count);
 	/* up relations */
-	cost += process_relations(*n1, n2, rc, 2, state, &count);
+	cost += process_relations(*n1, n2, rc, 2, state, &count, &retained);
 #ifdef VERBOSE_COSTS_4
 	cout << "Costs after process_relations up: " << cost << endl;
 #endif
@@ -179,7 +183,11 @@ DiffDijkstra::makeState(const DiffDijkstraState* state, NodeVec::const_iterator 
 
 	NodeVec::const_iterator ni = n1; ni++;
 	DiffDijkstraState* stat = new DiffDijkstraState(state->cost + cost,
-		state->length + (n2?1:0), ni, a, rc);
+		state->length + (n2?1:0), state->retained + retained, ni, a, rc);
+
+	/* update best_retained value */
+	if (state->retained + retained > best_retained)
+		best_retained = state->retained + retained;
 
 #ifdef VERBOSE_SEQCOUNT
 	stat->seq = seq; seq++;
@@ -187,9 +195,9 @@ DiffDijkstra::makeState(const DiffDijkstraState* state, NodeVec::const_iterator 
 #ifdef TRACING_ENABLED
 	if (searchTreeOutputStream) {
 		if (n2)
-			*searchTreeOutputStream << "Add " << stat->seq << "," << **n1 << "," << *n2 << "," << stat->cost << endl;
+			*searchTreeOutputStream << "Add " << stat->seq << "," << **n1 << "," << *n2 << "," << stat->cost << "," << stat->retained << endl;
 		else
-			*searchTreeOutputStream << "Add " << stat->seq << "," << **n1 << ",," << stat->cost << "," << endl;
+			*searchTreeOutputStream << "Add " << stat->seq << "," << **n1 << ",," << stat->cost << "," << stat->retained << endl;
 	}
 #endif
 	return stat;
@@ -197,15 +205,35 @@ DiffDijkstra::makeState(const DiffDijkstraState* state, NodeVec::const_iterator 
 
 bool
 DiffDijkstra::step() {
-	if (worklist.empty()) return false;
+	/* remove dead ends */
+	int cutoff = max_retained - best_retained;
+	multiset<DiffDijkstraState*, DiffDijkstraStateQueue >::iterator wli;
+	wli = worklist.begin();
+	//cout << "Cutoff point: " << cutoff << ", current: " << (*wli)->cost << endl;
+	/* never delete the first, although this shouldn't happen anyway */
+	//wli++;
+	for (; wli != worklist.end(); ++wli)
+		if ((*wli)->cost > cutoff) {
+			//cout << "deleting states that can only do worse..." << endl;
+			worklist.erase(wli, worklist.end());
+			break;
+		}
+
+	if (worklist.empty()) {
+		throw "Worklist is empty. Somehow I lost my last state...";
+		return false;
+	}
 
 	/* retrieve the current entry in the work list */
 	DiffDijkstraState* current = *(worklist.begin());
 	worklist.erase(worklist.begin());
 #ifdef TRACING_ENABLED
 	if (searchTreeOutputStream) {
-		*searchTreeOutputStream << "Step " << ++steps << ": " << current->seq << "/" << seq << " (of " << worklist.size()+1 << ") cost "
-			<< current->cost << ", len " << current->length << " ";
+		*searchTreeOutputStream << "Step " << ++steps << ": "
+			<< current->seq << "/" << seq << " (of " << worklist.size()+1
+			<< ") cost " << current->cost
+			<< ", retained " << current->retained
+			<< ", len " << current->length << " ";
 		if (current->ass && current->ass->n1)
 			*searchTreeOutputStream << *(current->ass->n1);
 		if (current->ass && current->ass->n2)
@@ -237,6 +265,8 @@ bool
 DiffDijkstra::run() {
 	/* calculate the credits by using the relation count */
 	RelCount* credit = new RelCount(doc1->relcount, doc2->relcount);
+	max_retained = 2*RelCount::calc_max_retained(doc1->relcount, doc2->relcount);
+	//cout << "Max retained: " << max_retained << endl;
 	//cerr << *credit << endl;
 
 	/* sort nodes by occurrence, low occurrence comes first */
@@ -262,7 +292,7 @@ DiffDijkstra::run() {
 
 	if (fastApproximativeMode) {
 		/* make start state with credits */
-		worklist.insert(new DiffDijkstraState(0,0,nodevec.begin(),NULL, credit));
+		worklist.insert(new DiffDijkstraState(0,0,0,nodevec.begin(),NULL, credit));
 		while (step()) {
 			/* drop all other states except the first */
 			multiset<DiffDijkstraState*, DiffDijkstraStateQueue >::iterator wi = worklist.begin();
@@ -276,7 +306,7 @@ DiffDijkstra::run() {
 		}
 	} else {
 		/* start with the root node, node matched nodes yet */
-		worklist.insert(new DiffDijkstraState(0,0,nodevec.begin(),NULL, credit));
+		worklist.insert(new DiffDijkstraState(0,0,0,nodevec.begin(),NULL, credit));
 		/* process next element while not finished */
 		while (step()) {;};
 		/* drop any remaining element in the work queue */
