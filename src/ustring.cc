@@ -71,7 +71,7 @@ namespace SSD {
 			/* duplicate string */
 			cstr = strdup(string);
 			/* insert into hashmap */
-			store[cstr]=cstr;
+			store.insert(make_pair(cstr,cstr));
 		} else
 			/* return same string as before */
 			cstr = iter->second;
