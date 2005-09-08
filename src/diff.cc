@@ -207,17 +207,19 @@ bool
 DiffDijkstra::step() {
 	/* remove dead ends */
 	int cutoff = max_retained - best_retained;
-	multiset<DiffDijkstraState*, DiffDijkstraStateQueue >::iterator wli;
-	wli = worklist.begin();
-	//cout << "Cutoff point: " << cutoff << ", current: " << (*wli)->cost << endl;
-	/* never delete the first, although this shouldn't happen anyway */
-	//wli++;
-	for (; wli != worklist.end(); ++wli)
-		if ((*wli)->cost > cutoff) {
-			//cout << "deleting states that can only do worse..." << endl;
-			worklist.erase(wli, worklist.end());
-			break;
-		}
+	if ((*(worklist.rbegin()))->cost > cutoff) {
+		multiset<DiffDijkstraState*, DiffDijkstraStateQueue >::iterator wli;
+		wli = worklist.begin();
+		//cout << "Cutoff point: " << cutoff << ", current: " << (*wli)->cost << endl;
+		/* never delete the first, although this shouldn't happen anyway */
+		//wli++;
+		for (; wli != worklist.end(); ++wli)
+			if ((*wli)->cost > cutoff) {
+				//cout << "deleting states that can only do worse..." << endl;
+				worklist.erase(wli, worklist.end());
+				break;
+			}
+	}
 
 	if (worklist.empty()) {
 		throw "Worklist is empty. Somehow I lost my last state...";
