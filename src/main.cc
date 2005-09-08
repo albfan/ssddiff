@@ -80,47 +80,52 @@ int main(int argc, char** argv) {
 		return(0);
 	}
 
-	if (!doc1.loadXML(argv[optind])) {
-		std::cerr << "Could not load: " << argv[1] << "." << std::endl;
-		return(1);
-	}
-	if (!doc2.loadXML(argv[optind + 1])) {
-		std::cerr << "Could not load: " << argv[2] << "." << std::endl;
-		return(1);
-	}
-	doc1.processXPath(xpath);
-	doc2.processXPath(xpath);
+	try {
 
-	DiffDijkstra	diff(doc1,doc2);
+		if (!doc1.loadXML(argv[optind])) {
+			std::cerr << "Could not load: " << argv[1] << "." << std::endl;
+			return(1);
+		}
+		if (!doc2.loadXML(argv[optind + 1])) {
+			std::cerr << "Could not load: " << argv[2] << "." << std::endl;
+			return(1);
+		}
+		doc1.processXPath(xpath);
+		doc2.processXPath(xpath);
 
-	// RelCount::dumpIndex(cout); cout << endl;
+		DiffDijkstra	diff(doc1,doc2);
 
-	diff.run();
+		// RelCount::dumpIndex(cout); cout << endl;
 
-	if (!diff.result) throw "Did not get a result, something is wrong.\n";
+		diff.run();
 
-	switch (output) {
-	case 0:
-		{
-			XUpdateWriter	out;
-			out.run(doc1, doc2, diff);
-			out.dump();
-		};
-		break;
-	case 1:
-		{
-			MergedWriter	out;
-			out.run(doc1, doc2, diff);
-			out.dump();
-		};
-		break;
-	case 2:
-		{
-			MarkedWriter	out;
-			out.run(doc1, doc2, diff);
-			out.dump();
-		};
-		break;
+		if (!diff.result) throw "Did not get a result, something is wrong.\n";
+
+		switch (output) {
+		case 0:
+			{
+				XUpdateWriter	out;
+				out.run(doc1, doc2, diff);
+				out.dump();
+			};
+			break;
+		case 1:
+			{
+				MergedWriter	out;
+				out.run(doc1, doc2, diff);
+				out.dump();
+			};
+			break;
+		case 2:
+			{
+				MarkedWriter	out;
+				out.run(doc1, doc2, diff);
+				out.dump();
+			};
+			break;
+		}
+	} catch (const char* error) {
+		cerr << "An exception occurred: " << error << endl;
 	}
 
 	return 0;
