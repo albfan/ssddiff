@@ -1,0 +1,30 @@
+AC_INIT(src/main.cc)
+AM_INIT_AUTOMAKE(ssddiff,0.2)
+AM_CONFIG_HEADER(config.h)
+
+dnl We don't strictly use a C compiler, but libxml is in C
+AC_PROG_CC
+AC_LANG_C
+dnl The application itself is in C++
+AC_PROG_CXX
+AC_LANG_CPLUSPLUS
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+
+AC_HEADER_STDC
+
+dnl test for libxml
+PKG_CHECK_MODULES(libxml2, libxml-2.0)
+AC_SUBST(libxml2_CFLAGS)
+AC_SUBST(libxml2_LIBS)
+
+AC_CHECK_HEADERS(vector,,AC_MSG_WARN(STL classes missing 'vector'?))
+AC_CHECK_HEADERS(map,,AC_MSG_WARN(STL classes missing 'map'?))
+AC_CHECK_HEADERS(set,,AC_MSG_WARN(STL classes missing 'set'?))
+AC_CHECK_HEADERS(utility,,AC_MSG_WARN(STL classes missing 'utility'?))
+AC_CHECK_HEADERS(ext/hash_map,,AC_MSG_WARN(STL classes missing 'hash_map' extension?))
+AC_CHECK_HEADERS(fstream,,AC_MSG_WARN(STL classes missing 'fstream'?))
+AC_CHECK_HEADERS(iostream,,AC_MSG_WARN(STL classes missing 'iostream'?))
+AC_CHECK_HEADERS(sstream,,AC_MSG_WARN(STL classes missing 'sstream'?))
+
+AC_OUTPUT([Makefile src/Makefile])
