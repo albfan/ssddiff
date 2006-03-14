@@ -24,13 +24,6 @@ namespace SSD {
 
 #define NAMESPACE_MERGED (xmlChar*)"merged-diff"
 
-#define INSERTED   (xmlChar*)"ins"
-#define DELETED    (xmlChar*)"del"
-#define MOVED_AWAY (xmlChar*)"moved-away"
-#define MOVED_HERE (xmlChar*)"moved-here"
-#define EDIT_NODE  (xmlChar*)"node"
-#define EDIT_CONT  (xmlChar*)"content"
-#define EDIT_FOLL  (xmlChar*)"following"
 #define INS_TEXT   (xmlChar*)"text-moved-here"
 #define REM_TEXT   (xmlChar*)"text-moved-away"
 #define REM_ATTR   (xmlChar*)"attr-moved-away"
@@ -39,6 +32,14 @@ namespace SSD {
 //#define A_MOVED_AWAY (xmlChar*)"attr-moved-away"
 #define A_MOVED_HERE (xmlChar*)"attr-moved-here"
 #define A_SEPARATOR (xmlChar*)";"
+#if 0
+#define INSERTED   (xmlChar*)"ins"
+#define DELETED    (xmlChar*)"del"
+#define MOVED_AWAY (xmlChar*)"moved-away"
+#define MOVED_HERE (xmlChar*)"moved-here"
+#define EDIT_NODE  (xmlChar*)"node"
+#define EDIT_CONT  (xmlChar*)"content"
+#define EDIT_FOLL  (xmlChar*)"following"
 
 static void markNode(xmlNode* node, xmlChar* text, xmlNsPtr ns) {
 	if (xmlNodeIsText(node)) {
@@ -53,6 +54,7 @@ static void markNode(xmlNode* node, xmlChar* text, xmlNsPtr ns) {
 		xmlSetNsProp(node,ns,EDIT_NODE,text);
 	}
 }
+#endif
 
 static void xmlAppendNsProp(xmlNodePtr node, xmlNsPtr ns, const xmlChar* name, const xmlChar* buf, const xmlChar* sep) {
 	/* do we already have a value? */
@@ -185,7 +187,7 @@ void attr_diff(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2, hash_
 	}
 }
 
-void rec_diff(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2, hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map, set<xmlNodePtr>& known, int output_only) {
+void MergedWriter::rec_diff(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2, hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map, set<xmlNodePtr>& known, int output_only) {
 	hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >::iterator i;
 	xmlNodePtr pos1;
 	xmlNodePtr pos2;
@@ -243,7 +245,7 @@ void rec_diff(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2, hash_m
 							xmlNodePtr copy = xmlCopyNode(i->second,0);
 							xmlAddChild(diff,copy);
 							attr_diff(copy, ns, pos1, i->second, map, known, output_only & ~OUTPUT_SECOND);
-							markNode(copy, MOVED_AWAY, ns);
+							marker.markNode(copy, NodeMarker::MOVEDAWAY, ns);
 							rec_diff(copy, ns, pos1->children, i->second->children, map, known, output_only & ~OUTPUT_SECOND);
 						}
 					} else {
@@ -251,7 +253,7 @@ void rec_diff(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2, hash_m
 						xmlNodePtr copy = xmlCopyNode(pos1,0);
 						xmlAddChild(diff,copy);
 						attr_diff(copy, ns, pos1, NULL, map, known, output_only & ~OUTPUT_SECOND);
-						if (p2) markNode(copy, DELETED, ns);
+						if (p2) marker.markNode(copy, NodeMarker::DELETED, ns);
 						rec_diff(copy, ns, pos1->children, NULL, map, known, output_only & ~OUTPUT_SECOND);
 					}
 				}
@@ -276,7 +278,7 @@ void rec_diff(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2, hash_m
 						xmlNodePtr copy = xmlCopyNode(i->second,0);
 						xmlAddChild(diff,copy);
 						attr_diff(copy, ns, i->second, pos2, map, known, output_only & ~OUTPUT_FIRST);
-						markNode(copy, MOVED_HERE, ns);
+						marker.markNode(copy, NodeMarker::MOVEDHERE, ns);
 						rec_diff(copy, ns, i->second->children, pos2->children, map, known, output_only & ~OUTPUT_FIRST);
 					} else {
 						/* nodes inserted */
@@ -288,7 +290,7 @@ void rec_diff(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2, hash_m
 						} else 
 							xmlAddChild(diff,copy);
 						attr_diff(copy, ns, NULL, pos2, map, known, output_only & ~OUTPUT_FIRST);
-						if (p1) markNode(copy, INSERTED, ns);
+						if (p1) marker.markNode(copy, NodeMarker::INSERTED, ns);
 						rec_diff(copy, ns, NULL, pos2->children, map, known, output_only & ~OUTPUT_FIRST);
 					}
 				}
@@ -363,4 +365,36 @@ void MergedWriter::dump() {
 MergedWriter::~MergedWriter() {
 	if (mergeddoc) xmlFreeDoc(mergeddoc); mergeddoc = NULL;
 }
+
+xmlChar* MergedWriter::NodeMarker::stringsAction[] =
+	{ NULL, (xmlChar*)"ins", (xmlChar*) "del",
+	  (xmlChar*) "moved-away", (xmlChar*) "moved-here" };
+xmlChar* MergedWriter::NodeMarker::stringsRefer[] =
+	{ (xmlChar*) "node", (xmlChar*) "content",
+	  (xmlChar*) "following", (xmlChar*) "attr" };
+xmlChar* MergedWriter::NodeMarker::stringsSpecial[] = 
+	{ (xmlChar*) "text-moved-here", (xmlChar*) "text-moved-away" };
+
+enum { REFNODE, REFCONT, REFFOLLOW, REFATTR };
+enum { TEXTMOVEDHERE, TEXTMOVEDAWAY };
+
+MergedWriter::NodeMarker::NodeMarker() { }
+MergedWriter::NodeMarker::~NodeMarker() { }
+
+void MergedWriter::NodeMarker::markNode(xmlNode* node, Action action, xmlNsPtr ns) {
+	if (xmlNodeIsText(node)) {
+		if (node->prev) {
+			xmlSetNsProp(node->prev,ns,stringsRefer[REFFOLLOW],stringsAction[action]);
+		} else if (node->parent) {
+			xmlSetNsProp(node->prev,ns,stringsRefer[REFCONT],stringsAction[action]);
+		} else {
+			throw "Textnode has neither prev sib nor parent!";
+		};
+	} else {
+		xmlSetNsProp(node,ns,stringsRefer[REFNODE],stringsAction[action]);
+	}
+}
+
+MergedWriter::NodeMarker MergedWriter::marker;
+
 } // namespace SSD

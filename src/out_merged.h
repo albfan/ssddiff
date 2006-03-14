@@ -27,6 +27,29 @@ private:
 	/** \brief the merged output document */
 	/* FIXME: make public, so you can do more than dumping to stdout? */
 	xmlDocPtr mergeddoc;
+
+	void rec_diff(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2, hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map, set<xmlNodePtr>& known, int output_only);
+protected:
+	/** \brief this class handles the XML marking */
+	static class NodeMarker {
+	public:
+		enum Action {
+			NONE,
+			INSERTED,
+			DELETED,
+			MOVEDAWAY,
+			MOVEDHERE
+		};
+	private:
+		static xmlChar* stringsAction[];
+		static xmlChar* stringsRefer[];
+		static xmlChar* stringsSpecial[];
+	public:
+		NodeMarker();
+		virtual ~NodeMarker();
+		void markNode(xmlNode* node, enum Action action, xmlNsPtr ns);
+	} marker;
+	
 public:
 	/** \brief create a new merged writer object */
 	MergedWriter() : mergeddoc(NULL) {};
