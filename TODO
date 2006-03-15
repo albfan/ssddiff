@@ -1,3 +1,6 @@
+* Handle (ignored) whitespace nicer especially in merged mode
+  especially prefix/postfixed whitespace
+
 * In fast mode, diff test2.xml to test3.xml in "merged" mode:
 Text-moved-here should not be used, instead deleted-text. How to detect?
 

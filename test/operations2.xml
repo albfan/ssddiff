@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<root>
+  <test name="Delete test">
+  </test>
+  <test name="Insert test">
+    <b/>
+  </test>
+  <test name="Move test">
+    <c>
+      <d/>
+    </c>
+    <c>
+      <e/>
+      <f/>
+    </c>
+  </test>
+  <test name="Nesting test">
+    <h><g/></h>
+  </test>
+  <test name="Delete text test">
+  </test>
+  <test name="Insert text test">
+    Text that was added
+  </test>
+  <test name="Move test">
+    <i/>
+    <j>Text to be moved</j>
+  </test>
+  <test name="Text collission test">
+    <k>Text flip 2<l/><l/>Text flip 1</k>
+  </test>
+</root>
