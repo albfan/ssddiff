@@ -61,7 +61,6 @@ void attr_diff(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2, hash_
 			a2 = (xmlAttrPtr) i->second;
 			if (a2->parent == p2) {
 				/* this is a kept attribute */
-				cerr << "Identical attribute: " << a1->name  << endl;
 				if (a1->ns) {
 					xmlNsPtr nsa = xmlSearchNsByHref(diff->doc, diff, a1->ns->href);
 					if (!nsa) {
@@ -118,7 +117,6 @@ void attr_diff(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2, hash_
 			a1 = (xmlAttrPtr) i->second;
 			if (a1->parent == p1) {
 				/* this is a kept attribute */
-				cerr << "Identical attribute: " << a2->name  << endl;
 			} else {
 				cerr << "Attribute moved here: " << a2->name << endl;
 				/* copy the attribute here */
@@ -205,6 +203,13 @@ void MergedWriter::recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
 			lcsi++;
 		}
 
+		/* In order to keep a (hopefully) rather minimal diff, we try to keep the
+		 * longest common subsequence (technically, a longest increasing subsequence)
+		 * unmodified, instead moving things before and after these fixed elements.
+		 *
+		 * Therefore, we first remove all elements from the first document up to the LIS point,
+		 * then add all nodes in the second up to the LIS point, then write the LIS point. */
+
 		/* output all nodes from first document until LIS point */
 		while (pos1 && (pos1 != check1)) {
 			if (output_only & OUTPUT_FIRST) {
@@ -218,22 +223,15 @@ void MergedWriter::recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
 					if (i != map.end()) {
 						xmlNodePtr copy = xmlCopyNode(i->second,0);
 						/* Nodes moved away */
-						if (xmlNodeIsText(i->second)) {
-							xmlNodePtr wrap = xmlNewNode(ns, REM_TEXT);
-							xmlAddChild(diff,wrap);
-							xmlAddChild(wrap, copy);
-						} else {
-							xmlAddChild(diff,copy);
-							attr_diff(copy, ns, pos1, i->second, map, known, output_only & ~OUTPUT_SECOND);
-							markNode(copy, MOVEDAWAY, ns);
-						}
+						markNode(diff, copy, MOVEDAWAY, ns);
+						attr_diff(copy, ns, pos1, i->second, map, known, output_only & ~OUTPUT_SECOND);
 						recCalcActions(copy, ns, pos1->children, i->second->children, map, known, output_only & ~OUTPUT_SECOND);
 					} else {
 						/* nodes removed altogether */
 						xmlNodePtr copy = xmlCopyNode(pos1,0);
-						xmlAddChild(diff,copy);
+						/* TODO: why is this if needed? Won't this leak memory? */
+						/*if (p2)*/ markNode(diff, copy, DELETED, ns);
 						attr_diff(copy, ns, pos1, NULL, map, known, output_only & ~OUTPUT_SECOND);
-						if (p2) markNode(copy, DELETED, ns);
 						recCalcActions(copy, ns, pos1->children, NULL, map, known, output_only & ~OUTPUT_SECOND);
 					}
 				}
@@ -256,21 +254,15 @@ void MergedWriter::recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
 					if (i != map.end()) {
 						/* Nodes moved here */
 						xmlNodePtr copy = xmlCopyNode(i->second,0);
-						xmlAddChild(diff,copy);
+						markNode(diff, copy, MOVEDHERE, ns);
 						attr_diff(copy, ns, i->second, pos2, map, known, output_only & ~OUTPUT_FIRST);
-						markNode(copy, MOVEDHERE, ns);
 						recCalcActions(copy, ns, i->second->children, pos2->children, map, known, output_only & ~OUTPUT_FIRST);
 					} else {
 						/* nodes inserted */
 						xmlNodePtr copy = xmlCopyNode(pos2,0);
-						if (xmlNodeIsText(copy) && xmlNodeIsText(diff->children)) {
-							xmlNodePtr wrap = xmlNewNode(ns, INS_TEXT);
-							xmlAddChild(diff, wrap);
-							xmlAddChild(wrap, copy);
-						} else 
-							xmlAddChild(diff,copy);
+						/* TODO: why is this if needed? Won't this leak memory? */
+						/*if (p1)*/ markNode(diff, copy, INSERTED, ns);
 						attr_diff(copy, ns, NULL, pos2, map, known, output_only & ~OUTPUT_FIRST);
-						if (p1) markNode(copy, INSERTED, ns);
 						recCalcActions(copy, ns, NULL, pos2->children, map, known, output_only & ~OUTPUT_FIRST);
 					}
 				}
@@ -353,21 +345,58 @@ xmlChar* MergedWriter::stringsRefer[] =
 	{ (xmlChar*) "node", (xmlChar*) "content",
 	  (xmlChar*) "following", (xmlChar*) "attr" };
 xmlChar* MergedWriter::stringsSpecial[] = 
-	{ (xmlChar*) "text-moved-here", (xmlChar*) "text-moved-away" };
+	{ (xmlChar*) "t-moved-here", (xmlChar*) "t-moved-away",
+	  (xmlChar*) "t-inserted",   (xmlChar*) "t-deleted" };
 
 enum { REFNODE, REFCONT, REFFOLLOW, REFATTR };
-enum { TEXTMOVEDHERE, TEXTMOVEDAWAY };
+enum { TEXTMOVEDHERE, TEXTMOVEDAWAY, TEXTINSERTED, TEXTDELETED };
 
-void MergedWriter::markNode(xmlNode* node, Action action, xmlNsPtr ns) {
-	if (xmlNodeIsText(node)) {
+/* Marking text nodes is where it gets really messy.
+ * First of all, two text nodes next to each other will collapse
+ * into one, so we need to wrap one, when both are present.
+ *
+ * Secondly, we can't add attributes to text nodes, instead we need
+ * to add the attributes to either the parent node, or the preceeding
+ * sibling. */
+void MergedWriter::markTextNode(xmlNode* pos, xmlNode* node, Action action, xmlNsPtr ns) {
+/* TODO: strip wrappers when not needed */
+	if (action == MOVEDAWAY) {
+		/* text that is moved away should always be wrapped
+		 * (unless of course it's moved along with it's parent)
+		 * since that is more likely to keep the semantics somewhat
+		 * intact. I mean, the text is no longer there, so it should
+		 * be removed somehow. ;-) */
+		xmlNodePtr wrap = xmlNewNode(ns, stringsSpecial[TEXTMOVEDAWAY]);
+		xmlAddChild(pos,wrap);
+		xmlAddChild(wrap, node);
+	} else if (action == DELETED) {
+		xmlNodePtr wrap = xmlNewNode(ns, stringsSpecial[TEXTDELETED]);
+		xmlAddChild(pos,wrap);
+		xmlAddChild(wrap, node);
+	} else if (action == MOVEDHERE) {
+		xmlNodePtr wrap = xmlNewNode(ns, stringsSpecial[TEXTMOVEDHERE]);
+		xmlAddChild(pos,wrap);
+		xmlAddChild(wrap, node);
+	} else if (action == INSERTED) {
+		xmlNodePtr wrap = xmlNewNode(ns, stringsSpecial[TEXTINSERTED]);
+		xmlAddChild(pos,wrap);
+		xmlAddChild(wrap, node);
+	} else {
+		xmlAddChild(pos, node);
 		if (node->prev) {
 			xmlSetNsProp(node->prev,ns,stringsRefer[REFFOLLOW],stringsAction[action]);
 		} else if (node->parent) {
-			xmlSetNsProp(node->prev,ns,stringsRefer[REFCONT],stringsAction[action]);
+			xmlSetNsProp(node->parent,ns,stringsRefer[REFCONT],stringsAction[action]);
 		} else {
 			throw "Textnode has neither prev sib nor parent!";
 		};
+	}
+}
+void MergedWriter::markNode(xmlNode* pos, xmlNode* node, Action action, xmlNsPtr ns) {
+	if (xmlNodeIsText(node)) {
+		markTextNode(pos, node, action, ns);
 	} else {
+		xmlAddChild(pos,node);
 		xmlSetNsProp(node,ns,stringsRefer[REFNODE],stringsAction[action]);
 	}
 }

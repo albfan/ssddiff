@@ -43,7 +43,9 @@ private:
 	/** \brief output for special operations */
 	static xmlChar* stringsSpecial[];
 	/** \brief helper to mark a node in a certain way */
-	virtual void markNode(xmlNode* node, enum Action action, xmlNsPtr ns);
+	virtual void markNode(xmlNode* pos, xmlNode* node, enum Action action, xmlNsPtr ns);
+	/** \brief helper to mark a text node */
+	virtual void markTextNode(xmlNode* pos, xmlNode* node, enum Action action, xmlNsPtr ns);
 
 	/** \brief recursively calculate actions */
 	void recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
