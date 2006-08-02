@@ -42,14 +42,22 @@ private:
 	static xmlChar* stringsRefer[];
 	/** \brief output for special operations */
 	static xmlChar* stringsSpecial[];
+	/** \brief output for attribute operations */
+	static xmlChar* stringsAttributes[];
 	/** \brief helper to mark a node in a certain way */
 	virtual void markNode(xmlNode* pos, xmlNode* node, enum Action action, xmlNsPtr ns);
 	/** \brief helper to mark a text node */
 	virtual void markTextNode(xmlNode* pos, xmlNode* node, enum Action action, xmlNsPtr ns);
+	/** \brief helper to mark an attribute */
+	virtual void markAttribute(xmlNode* pos, xmlAttrPtr attr, Action action, xmlNsPtr ns);
 
 	/** \brief recursively calculate actions */
 	void recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
 		xmlNodePtr p1, xmlNodePtr p2,
+		hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map,
+		set<xmlNodePtr>& known, int output_only);
+	/** \brief diff attributes, TODO: rewrite this */
+	void diffAttributes(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2,
 		hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map,
 		set<xmlNodePtr>& known, int output_only);
 public:
