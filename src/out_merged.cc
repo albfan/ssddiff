@@ -286,14 +286,14 @@ void MergedWriter::recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
 						xmlNodePtr copy = xmlCopyNode(i->second,0);
 						/* Nodes moved away */
 						markNode(diff, copy, MOVEDAWAY, ns);
-						attr_diff(copy, ns, pos1, i->second, map, known, output_only & ~OUTPUT_SECOND);
+						diffAttributes(copy, ns, pos1, i->second, map, known, output_only & ~OUTPUT_SECOND);
 						recCalcActions(copy, ns, pos1->children, i->second->children, map, known, output_only & ~OUTPUT_SECOND);
 					} else {
 						/* nodes removed altogether */
 						xmlNodePtr copy = xmlCopyNode(pos1,0);
 						/* TODO: why is this if needed? Won't this leak memory? */
 						/*if (p2)*/ markNode(diff, copy, DELETED, ns);
-						attr_diff(copy, ns, pos1, NULL, map, known, output_only & ~OUTPUT_SECOND);
+						diffAttributes(copy, ns, pos1, NULL, map, known, output_only & ~OUTPUT_SECOND);
 						recCalcActions(copy, ns, pos1->children, NULL, map, known, output_only & ~OUTPUT_SECOND);
 					}
 				}
@@ -317,14 +317,14 @@ void MergedWriter::recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
 						/* Nodes moved here */
 						xmlNodePtr copy = xmlCopyNode(i->second,0);
 						markNode(diff, copy, MOVEDHERE, ns);
-						attr_diff(copy, ns, i->second, pos2, map, known, output_only & ~OUTPUT_FIRST);
+						diffAttributes(copy, ns, i->second, pos2, map, known, output_only & ~OUTPUT_FIRST);
 						recCalcActions(copy, ns, i->second->children, pos2->children, map, known, output_only & ~OUTPUT_FIRST);
 					} else {
 						/* nodes inserted */
 						xmlNodePtr copy = xmlCopyNode(pos2,0);
 						/* TODO: why is this if needed? Won't this leak memory? */
 						/*if (p1)*/ markNode(diff, copy, INSERTED, ns);
-						attr_diff(copy, ns, NULL, pos2, map, known, output_only & ~OUTPUT_FIRST);
+						diffAttributes(copy, ns, NULL, pos2, map, known, output_only & ~OUTPUT_FIRST);
 						recCalcActions(copy, ns, NULL, pos2->children, map, known, output_only & ~OUTPUT_FIRST);
 					}
 				}
@@ -337,7 +337,7 @@ void MergedWriter::recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
 			if (output_only & (OUTPUT_FIRST | OUTPUT_SECOND)) {
 				xmlNodePtr copy = xmlCopyNode(pos2,0);
 				xmlAddChild(diff,copy);
-				attr_diff(copy, ns, pos1, pos2, map, known, output_only);
+				diffAttributes(copy, ns, pos1, pos2, map, known, output_only);
 //**/					markNode(copy, (xmlChar*)"lcsi", ns);
 				recCalcActions(copy, ns, pos1->children, pos2->children, map, known, output_only);
 			}
