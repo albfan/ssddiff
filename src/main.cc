@@ -105,6 +105,7 @@ int main(int argc, char** argv) {
 		case 0:
 			{
 				XUpdateWriter	out;
+				std:cerr << "Warning: XUpdate writer doesn't support attribute changes yet." << std::endl;
 				out.run(doc1, doc2, diff);
 				out.dump();
 			};
@@ -119,6 +120,7 @@ int main(int argc, char** argv) {
 		case 2:
 			{
 				MarkedWriter	out;
+				std:cerr << "Warning: Marked writer doesn't support attribute changes yet." << std::endl;
 				out.run(doc1, doc2, diff);
 				out.dump();
 			};
