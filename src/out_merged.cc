@@ -22,7 +22,7 @@
 using namespace SSD;
 namespace SSD {
 
-#define NAMESPACE_MERGED (xmlChar*)"merged-diff"
+#define NAMESPACE_MERGED (xmlChar*)"http://xmldesign.de/XML/diff/merged/0.1"
 
 #define REM_ATTR   (xmlChar*)"attr-moved-away"
 #define A_SEPARATOR (xmlChar*)";"
