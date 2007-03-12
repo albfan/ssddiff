@@ -16,7 +16,7 @@
 #include "out_marked.h"
 #include "out_merged.h"
 
-#include "getopt.h"
+#include "unistd.h"
 
 using namespace SSD;
 
