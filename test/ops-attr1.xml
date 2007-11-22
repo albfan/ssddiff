@@ -1,34 +1,5 @@
 <?xml version="1.0"?>
 <root>
-  <test name="Delete test">
-    <a/>
-  </test>
-  <test name="Insert test">
-  </test>
-  <test name="Move test">
-    <c>
-      <d/>
-      <e/>
-    </c>
-    <c>
-      <f/>
-    </c>
-  </test>
-  <test name="Nesting test">
-    <g><h/></g>
-  </test>
-  <test name="Delete text test">
-    Text to be deleted
-  </test>
-  <test name="Insert text test">
-  </test>
-  <test name="Move test">
-    <i>Text to be moved</i>
-    <j/>
-  </test>
-  <test name="Text collission test">
-    Text flip 1<k/>Text flip 2
-  </test>
   <test name="Attribute delete test">
     <node testa="yes"/>
   </test>
