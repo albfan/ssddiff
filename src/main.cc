@@ -22,7 +22,7 @@ using namespace SSD;
 
 //#define DEFAULT_PATH BAD_CAST ".//*|.//text()"
 //#define DEFAULT_PATH BAD_CAST ".//*|./text()"
-#define DEFAULT_PATH "./node() | ./*/*"
+#define DEFAULT_PATH "./node() | ./*/node()"
 //#define DEFAULT_PATH BAD_CAST "./*|./text()"
 //#define DEFAULT_PATH BAD_CAST ".//*|.//text()|following-sibling::*"
 //#define DEFAULT_PATH BAD_CAST "./following-sibling::*"
@@ -41,7 +41,8 @@ void usage(char* progname) {
 	cerr << "    -m                  Use 'merged' output format" << endl;
 	cerr << "    -a                  Use 'marked' output format" << endl;
 	cerr << "    -u                  Use 'xupdate' output format" << endl;
-	cerr << "    -f                  Use fast mode (approximative)" << endl;
+	cerr << "    -f                  Use fast mode (approximative, default)" << endl;
+	cerr << "    -e                  Use exact mode (really slow)" << endl;
 	cerr << "    -p xpath            Use a different xpath statement for structure" << endl;
 	cerr << "    -p './/node()'      Use descendant relation" << endl;
 	cerr << "    -p './node()'       Use child relation" << endl;
@@ -55,9 +56,12 @@ int main(int argc, char** argv) {
 	int output = 1;
 	const char* xpath = DEFAULT_PATH;
 
+	// make fast mode the default
+	DiffDijkstra::fastApproximativeMode = true;
+
 	int option_char;
 	while (1) {
-		option_char = getopt(argc, argv, "famuwt:p:");
+		option_char = getopt(argc, argv, "efamuwt:p:");
 		if (option_char < 0) break;
 		switch (option_char) {
 #ifdef TRACING_ENABLED
@@ -69,6 +73,7 @@ int main(int argc, char** argv) {
 			case 'm': output = 1; break;
 			case 'a': output = 2; break;
 			case 'f': DiffDijkstra::fastApproximativeMode = true; break;
+			case 'e': DiffDijkstra::fastApproximativeMode = false; break;
 			case '?':
 				usage(argv[0]);
 				return(0);
