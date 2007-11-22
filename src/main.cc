@@ -51,7 +51,8 @@ int main(int argc, char** argv) {
 	Doc		doc1;
 	Doc		doc2;
 
-	int output = 0;
+	// use 'merged' output format by default for now
+	int output = 1;
 	const char* xpath = DEFAULT_PATH;
 
 	int option_char;
