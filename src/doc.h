@@ -112,7 +112,7 @@ public:
 	bool loadXML(const char* filename);
 	/** \brief build related-to data for a given xpath
 	 *  \param xpath XPath expression to be used */
-	void processXPath(char* xpath);
+	void processXPath(const char* xpath);
 	/** \brief create an empty doc object */
 	Doc();
 	/** \brief drop document information */

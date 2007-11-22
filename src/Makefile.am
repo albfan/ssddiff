@@ -1,5 +1,5 @@
 LDADD = @libxml2_LIBS@
-CXXFLAGS = @libxml2_CFLAGS@
+AM_CXXFLAGS = @libxml2_CFLAGS@
 
 bin_PROGRAMS = xmldiff
 xmldiff_SOURCES = diff.cc doc.cc main.cc node.cc node_eqclass.cc out_common.cc out_marked.cc out_merged.cc out_xupdate.cc rel_count.cc rel_eqclass.cc ustring.cc

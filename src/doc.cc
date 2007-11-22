@@ -101,7 +101,7 @@ Doc::loadXML(const char* filename) {
 }
 
 void
-Doc::processXPath(char* xp) {
+Doc::processXPath(const char* xp) {
 	/* generate xpath setup */
 	xmlXPathContextPtr xpathctx = xmlXPathNewContext(dom);
 	if (!xpathctx) throw "Doc::processXPath - xmlXPathNewContext failed.";
