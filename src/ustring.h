@@ -17,6 +17,7 @@
 #include <iostream>
 #include <map>
 #include <ext/hash_map>
+#include <cstring>
 
 #include <libxml/tree.h> /* for xmlChar */
 

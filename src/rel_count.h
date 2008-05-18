@@ -15,6 +15,7 @@
 #include "rel_eqclass.h"
 #include <vector>
 #include <ext/hash_map>
+#include <climits>
 
 using namespace std;
 
