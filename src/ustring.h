@@ -13,16 +13,15 @@
 #define  USTRING_H
 
 #include "config.h"
+#include "util.h"
 
 #include <iostream>
 #include <map>
-#include <tr1/unordered_map>
 #include <cstring>
 
 #include <libxml/tree.h> /* for xmlChar */
 
 using namespace std;
-using namespace std::tr1;
 
 namespace SSD {
 
@@ -40,7 +39,7 @@ class ustring {
 	const char* cstr;
 
 	/** \brief global store for "unified" strings */
-	static unordered_map< const char*, const char*, hash<const char*>, eq_str> store;
+	static hashmap< const char*, const char*, hashstr, eq_str> store;
 public:
 	/** \brief unify a char string */
 	/** \param s char string to be unified */
@@ -82,7 +81,7 @@ public:
 	/** \brief test if this actually represents a nonempty string */
 	bool empty() const { return (cstr == NULL); }
 	/** \brief hash function is just using the pointer value */
-	size_t hashfun() const { return reinterpret_cast<size_t>(cstr); }
+	size_t hash() const { return reinterpret_cast<size_t>(cstr); }
 
 	/** \brief append ustring to output stream for easier writing */
 	/** \param out output stream to be appended to
@@ -98,7 +97,7 @@ struct hash_ustring {
 	/** \brief hash function for ustrings */
 	/** \param u string to be hashed */
 	size_t operator()(const SSD::ustring u) const {
-		return u.hashfun();
+		return u.hash();
 	};
 };
 }

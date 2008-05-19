@@ -22,7 +22,6 @@
 #include "rel_count.h"
 
 using namespace std;
-using namespace __gnu_cxx;
 
 namespace SSD {
 

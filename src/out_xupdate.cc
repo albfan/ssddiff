@@ -347,8 +347,8 @@ void XUpdateWriter::deleteDummyNodes(xmlNodePtr pos) {
 // FIXME: i think i'll need special handling for the case of a nesting inversion
 // i.e. <a><b/></a> -> <b><a/></b> with additional changes
 void XUpdateWriter::recDiff(xmlNodePtr pos1, xmlNodePtr pos2, xmlNodePtr insertpos, xmlNodePtr addedpos, int output) {
-	unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >::iterator i;
-	unordered_map<xmlNodePtr, int,        hash<void*> >::iterator ix;
+	hashmap<xmlNodePtr, xmlNodePtr, hashfun<void*> >::iterator i;
+	hashmap<xmlNodePtr, int,        hashfun<void*> >::iterator ix;
 	int insert_mode = INSERT_MODE_CHILD;
 	if (!pos1 && !pos2 && !insertpos) return;
 
@@ -369,7 +369,7 @@ void XUpdateWriter::recDiff(xmlNodePtr pos1, xmlNodePtr pos2, xmlNodePtr insertp
 		vector<pair<xmlNodePtr, xmlNodePtr> > p1;
 		vector<xmlNodePtr> p2;
 		for (xmlNodePtr i=pos1; i; i=i->next) {
-			unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >::iterator f = map.find(i);
+			hashmap<xmlNodePtr, xmlNodePtr, hashfun<void*> >::iterator f = map.find(i);
 			if (f != map.end()) p1.push_back(make_pair(i,f->second));
 		}
 		for (xmlNodePtr i=pos2; i; i=i->next)

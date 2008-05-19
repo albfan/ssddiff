@@ -14,7 +14,6 @@
 #include "config.h"
 
 using namespace std;
-using namespace __gnu_cxx;
 
 namespace SSD {
 
@@ -36,7 +35,7 @@ namespace SSD {
 		}
 
 		/* unify text string */
-		unordered_map< const char*, const char*, hash<const char*>, eq_str>::iterator iter = store.find(string);
+		hashmap< const char*, const char*, hashstr, eq_str>::iterator iter = store.find(string);
 		if (iter == store.end()) {
 			/* duplicate string */
 			cstr = strdup(string);
@@ -66,7 +65,7 @@ namespace SSD {
 		}
 
 		/* unify text string */
-		unordered_map< const char*, const char*, hash<char*>, eq_str>::iterator iter = store.find(string);
+		hashmap< const char*, const char*, hashstr, eq_str>::iterator iter = store.find(string);
 		if (iter == store.end()) {
 			/* duplicate string */
 			cstr = strdup(string);
@@ -83,5 +82,5 @@ namespace SSD {
 		return out;
 	}
 
-	unordered_map< const char*, const char*, hash<const char*>, eq_str> ustring::store;
+	hashmap< const char*, const char*, hashstr, eq_str> ustring::store;
 }

@@ -19,7 +19,6 @@
 #include <fstream>
 
 using namespace std;
-using namespace __gnu_cxx;
 
 namespace SSD {
 

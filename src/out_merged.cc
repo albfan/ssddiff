@@ -130,10 +130,10 @@ void MergedWriter::markAttribute(xmlNode* pos, xmlAttrPtr attr, Action action, x
 void MergedWriter::diffAttributes(
 	xmlNodePtr diff, xmlNsPtr ns,
 	xmlNodePtr p1, xmlNodePtr p2,
-	unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map,
+	hashmap<xmlNodePtr, xmlNodePtr, hashfun<void*> >& map,
 	set<xmlNodePtr>& known, int output_only)
 {
-	unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >::iterator i;
+	hashmap<xmlNodePtr, xmlNodePtr, hashfun<void*> >::iterator i;
 	xmlAttrPtr a1, a2;
 	xmlNodePtr remattr = NULL;
 	if (p1)
@@ -231,10 +231,10 @@ void MergedWriter::diffAttributes(
 
 void MergedWriter::recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
 	xmlNodePtr p1, xmlNodePtr p2,
-	unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map,
+	hashmap<xmlNodePtr, xmlNodePtr, hashfun<void*> >& map,
 	set<xmlNodePtr>& known, int output_only)
 {
-	unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >::iterator i;
+	hashmap<xmlNodePtr, xmlNodePtr, hashfun<void*> >::iterator i;
 	xmlNodePtr pos1;
 	xmlNodePtr pos2;
 
@@ -246,7 +246,7 @@ void MergedWriter::recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
 		vector<pair<xmlNodePtr, xmlNodePtr> > l1;
 		vector<xmlNodePtr> l2;
 		for (xmlNodePtr i=p1; i; i=i->next) {
-			unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >::iterator f = map.find(i);
+			hashmap<xmlNodePtr, xmlNodePtr, hashfun<void*> >::iterator f = map.find(i);
 			if (f != map.end()) l1.push_back(make_pair(i,f->second));
 		}
 		for (xmlNodePtr i=p2; i; i=i->next)
@@ -352,7 +352,7 @@ void MergedWriter::run(Doc& doc1, Doc& doc2, DiffDijkstra& diff) {
 	if (mergeddoc) xmlFreeDoc(mergeddoc);
 	mergeddoc = xmlNewDoc((xmlChar*)"1.0");
 	/* build a map for lookups node-in-second -> node-in-first */
-	unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> > map_back;
+	hashmap<xmlNodePtr, xmlNodePtr, hashfun<void*> > map_back;
 	for (NodeAssignments* iter = diff.result->ass; iter; iter = iter->next) {
 		if (iter->n1 && iter->n2) {
 			map_back.insert(make_pair((xmlNode*)iter->n1->data,(xmlNode*)iter->n2->data));

@@ -16,10 +16,10 @@ namespace SSD {
 
 /* for static lookup hashmap */
 unsigned int RelCount::len = 0;
-unordered_map<RelEqClass, unsigned int, hash_releqc> RelCount::cmap;
+hashmap<RelEqClass, unsigned int, hash_releqc> RelCount::cmap;
 
-RelCount::RelCount(unordered_map<RelEqClass, int, hash_releqc>& map1, unordered_map<RelEqClass, int, hash_releqc>& map2) : data(NULL) {
-	unordered_map<RelEqClass, int, hash_releqc>::iterator i1, i2;
+RelCount::RelCount(hashmap<RelEqClass, int, hash_releqc>& map1, hashmap<RelEqClass, int, hash_releqc>& map2) : data(NULL) {
+	hashmap<RelEqClass, int, hash_releqc>::iterator i1, i2;
 	vector<short> tmpdata;
 	
 	/* initialize the first RelCount from the tables of two documents */
@@ -76,7 +76,7 @@ int RelCount::modify(RelEqClass key, short val) {
 	int cost=0;
 
 	/* find the key in lookup table */
-	unordered_map<RelEqClass, unsigned int, hash_releqc>::iterator pos = cmap.find(key);
+	hashmap<RelEqClass, unsigned int, hash_releqc>::iterator pos = cmap.find(key);
 	if (pos != cmap.end()) {
 		/* unique keys don't generate costs */
 		if (pos->second == RELCOUNT_UNIQUE) return 0;
@@ -131,14 +131,14 @@ std::ostream &operator<<(std::ostream &out, const RelCount& rc) {
 }
 
 void RelCount::dumpIndex(std::ostream &out) {
-	unordered_map<RelEqClass, unsigned int, hash_releqc>::iterator i;
+	hashmap<RelEqClass, unsigned int, hash_releqc>::iterator i;
 	for (i = cmap.begin(); i != cmap.end(); i++) {
 		out << i->first << ": " << i->second << " ";
 	}
 }
 
-int RelCount::calc_max_retained(unordered_map<RelEqClass, int, hash_releqc>& map1, unordered_map<RelEqClass, int, hash_releqc>& map2) {
-	unordered_map<RelEqClass, int, hash_releqc>::iterator i1, i2;
+int RelCount::calc_max_retained(hashmap<RelEqClass, int, hash_releqc>& map1, hashmap<RelEqClass, int, hash_releqc>& map2) {
+	hashmap<RelEqClass, int, hash_releqc>::iterator i1, i2;
 	int max_retained=0;
 	
 	for (i1 = map1.begin(); i1 != map1.end(); i1++) {

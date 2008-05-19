@@ -10,6 +10,7 @@
  *                   Institut für Informatik, LMU München
  * ======================================================================== */
 #include "doc.h"
+#include "util.h"
 #include <vector>
 #include <map>
 #include <libxml/tree.h>
@@ -25,8 +26,8 @@ void calcLIS(vector<pair<xmlNodePtr, xmlNodePtr> >& p1, vector<xmlNodePtr>& p2, 
 	vector<xmlNodePtr>::iterator pos2;
 	/* map node ptrs to pos */
 	int l = 0;
-	unordered_map<xmlNodePtr, int, hash<void*> > m; /* local numbers */
-	unordered_map<xmlNodePtr, int, hash<void*> >::iterator mi;
+	hashmap<xmlNodePtr, int, hashfun<void*> > m; /* local numbers */
+	hashmap<xmlNodePtr, int, hashfun<void*> >::iterator mi;
 	/* assign increasing sequence of numbers to nodes that might appear
 	 * in second chain as well */
 	for (pos1 = p1.begin(); pos1 != p1.end(); pos1++) {

@@ -64,7 +64,7 @@ Doc::walkTreeXPath(xmlXPathContextPtr xpathctx, xmlXPathCompExprPtr xpath, Node*
 				/* do document relation count */
 				RelEqClass key(node, reln);
 				
-				unordered_map<RelEqClass, int, hash_releqc>::iterator pos = relcount.find(key);
+				hashmap<RelEqClass, int, hash_releqc>::iterator pos = relcount.find(key);
 				if (pos != relcount.end()) {
 					relcount[key]++;
 				} else {

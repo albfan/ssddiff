@@ -63,11 +63,11 @@ public:
 	}
 
 	/** \brief hash function for maps */
-	size_t hashfun() const {
-		size_t h2 = fc.hashfun();
-		size_t h3 = sl.hashfun();
-		size_t h4 = sc.hashfun();
-		return fl.hashfun() ^ (h2 << 16) ^ (h2 >> 16) ^ (h3 << 8) ^ (h3 >> 24) ^ (h4 << 24) ^ (h4 >> 8); }
+	size_t hash() const {
+		size_t h2 = fc.hash();
+		size_t h3 = sl.hash();
+		size_t h4 = sc.hash();
+		return fl.hash() ^ (h2 << 16) ^ (h2 >> 16) ^ (h3 << 8) ^ (h3 >> 24) ^ (h4 << 24) ^ (h4 >> 8); }
 
 	/** \brief helper function to allow dumping onto output streams */
 	/** \param out output stream to be written to
@@ -78,7 +78,7 @@ public:
 /** \brief hash functor for relation equality classes */
 struct hash_releqc {
 	/** \brief hash function for relation equality classes */
-	size_t operator()(const RelEqClass req) const { return req.hashfun(); };
+	size_t operator()(const RelEqClass req) const { return req.hash(); };
 };
 }
 #endif

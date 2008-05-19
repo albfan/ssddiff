@@ -63,11 +63,11 @@ public:
 	 * very efficient, being the pointer of the strings themselves
 	 * \return hash value
 	 * */
-	size_t hashfun() const {
-		size_t h2 = content.hashfun();
+	size_t hash() const {
+		size_t h2 = content.hash();
 		/* avoid certain typical patterns that can occur when
 		 * using a 1:1 XOR */
-		return label.hashfun() ^ (h2 << 16) ^ (h2 >> 16); }
+		return label.hash() ^ (h2 << 16) ^ (h2 >> 16); }
 
 	/** \brief serialization to output streams
 	 * \param out output stream
@@ -82,14 +82,14 @@ public:
 struct hash_NEqC {
 	/** \brief hash function call 
 	 * \param neqc Node equality class
-	 * \return hash value as obtained by NodeEqClass:hashfun()
+	 * \return hash value as obtained by NodeEqClass:hash()
 	 * */
-	size_t operator()(const NodeEqClass neqc) const { return neqc.hashfun(); };
+	size_t operator()(const NodeEqClass neqc) const { return neqc.hash(); };
 };
 
 /** \brief shorthand for template construct */
 typedef
-unordered_map< NodeEqClass, NodeVec, hash_NEqC > NodeEqClassVec;
+hashmap< NodeEqClass, NodeVec, hash_NEqC > NodeEqClassVec;
 
 }
 #endif

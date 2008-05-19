@@ -14,7 +14,6 @@
 #include "config.h"
 #include "rel_eqclass.h"
 #include <vector>
-#include <tr1/unordered_map>
 #include <climits>
 
 using namespace std;
@@ -47,7 +46,7 @@ private:
 	/** \brief number of releqclasses we need to track */
 	static unsigned int len;
 	/** \brief static map from class to index number */
-	static unordered_map<RelEqClass, unsigned int, hash_releqc> cmap;
+	static hashmap<RelEqClass, unsigned int, hash_releqc> cmap;
 	/** \brief data storage. would be interesting to save the memory for this pointer, too... */
 	short*	data;
 public:
@@ -58,7 +57,7 @@ public:
 	 *  Always use this once and make this the first RelCount object you create!
 	 *  \param map1 relation counts in first document
 	 *  \param map2 relation counts in second document */
-	RelCount(unordered_map<RelEqClass, int, hash_releqc>& map1, unordered_map<RelEqClass, int, hash_releqc>& map2);
+	RelCount(hashmap<RelEqClass, int, hash_releqc>& map1, hashmap<RelEqClass, int, hash_releqc>& map2);
 	/** \brief make a copy of an RelCount dataset */
 	RelCount(RelCount& rc);
 	/** \brief delete a RelCount dataset */
@@ -85,7 +84,7 @@ public:
 	/** \brief calc maximum retaintable prediction
 	 *  \param map1 relation counts in first document
 	 *  \param map2 relation counts in second document */
-	static int calc_max_retained(unordered_map<RelEqClass, int, hash_releqc>& map1, unordered_map<RelEqClass, int, hash_releqc>& map2);
+	static int calc_max_retained(hashmap<RelEqClass, int, hash_releqc>& map1, hashmap<RelEqClass, int, hash_releqc>& map2);
 };
 
 }

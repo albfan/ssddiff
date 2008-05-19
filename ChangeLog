@@ -1,10 +1,13 @@
 Mon, 19 May 2008 14:49:10 +0200
 
 * Switched to using std::tr1::unordered_map<> instead of __gnu_cxx::hash_map<>
-which was deprecated in GCC 4.3. STL Technical Report 1 is much more standards
-compliant.
+  which was deprecated in GCC 4.3. STL Technical Report 1 is much more
+  standards compliant.
 * Also added some more includes for GCC 4.3 compability.
 * Removed custom specialization of hash<void*> since that is included in TR1
+* Factor out all hash_map related references into a #define in util.h
+  This should make it easier to port this to other STL implementations that
+  don't yet include TR1.
+* Added hashstr function to util.h that also depends on TR1
 
-TODO: factor out the map classes into a single header file, to allow easier
-porting to other C compilers / STL implementations?
+Tested to compile with GCC 4.2 and 4.3
