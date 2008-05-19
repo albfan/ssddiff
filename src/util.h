@@ -11,11 +11,12 @@
  * ======================================================================== */
 #ifndef  UTIL_INC
 #define  UTIL_INC
-#include <ext/hash_map>
+#include <tr1/unordered_map>
 
 /**** Utilities ****/
-/* FIXME: move this into std namespace to get rid of GNU dependency? */
-namespace __gnu_cxx {
+/* FIXME: How to best get rid of this namespace hack? */
+namespace std {
+_GLIBCXX_BEGIN_NAMESPACE(tr1)
 /** \brief trivial "hash function" for pointers */
 template<>
 struct hash<void *> {
@@ -23,6 +24,7 @@ struct hash<void *> {
     size_t operator()(const void * __x) const {
 	return reinterpret_cast<size_t>(__x); }
     };
+_GLIBCXX_END_NAMESPACE
 }
 
 /** \brief minimum macro */

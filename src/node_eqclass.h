@@ -89,7 +89,7 @@ struct hash_NEqC {
 
 /** \brief shorthand for template construct */
 typedef
-hash_map< NodeEqClass, NodeVec, hash_NEqC > NodeEqClassVec;
+unordered_map< NodeEqClass, NodeVec, hash_NEqC > NodeEqClassVec;
 
 }
 #endif

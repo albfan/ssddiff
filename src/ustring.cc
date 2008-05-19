@@ -36,7 +36,7 @@ namespace SSD {
 		}
 
 		/* unify text string */
-		hash_map< const char*, const char*, hash<char*>, eq_str>::iterator iter = store.find(string);
+		unordered_map< const char*, const char*, hash<const char*>, eq_str>::iterator iter = store.find(string);
 		if (iter == store.end()) {
 			/* duplicate string */
 			cstr = strdup(string);
@@ -66,7 +66,7 @@ namespace SSD {
 		}
 
 		/* unify text string */
-		hash_map< const char*, const char*, hash<char*>, eq_str>::iterator iter = store.find(string);
+		unordered_map< const char*, const char*, hash<char*>, eq_str>::iterator iter = store.find(string);
 		if (iter == store.end()) {
 			/* duplicate string */
 			cstr = strdup(string);
@@ -83,5 +83,5 @@ namespace SSD {
 		return out;
 	}
 
-	hash_map< const char*, const char*, hash<char*>, eq_str> ustring::store;
+	unordered_map< const char*, const char*, hash<const char*>, eq_str> ustring::store;
 }

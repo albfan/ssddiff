@@ -25,20 +25,20 @@ private:
 	xmlNodePtr						output;
 	/** \brief XML namespace for xupdate statements */
 	xmlNsPtr						ns;
-	/** \brief hash_map summarizing diff result */
-	hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >		map;
+	/** \brief unordered_map summarizing diff result */
+	unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >		map;
 	/** \brief map nodes to index for move variables */
-	hash_map<xmlNodePtr, int, hash<void*> >			map_index;
+	unordered_map<xmlNodePtr, int, hash<void*> >			map_index;
 	/** \brief next number to be used for a move variable */
 	int							index_num;
 	/** \brief storage for subtress "cut" but not yet reinserted (i.e. store variable contents) */
-	hash_map<int, xmlNodePtr, hash<int> >			map_move_subtrees;
+	unordered_map<int, xmlNodePtr, hash<int> >			map_move_subtrees;
 	/** \brief to identify nodes ignored in the diff process */
 	set<xmlNodePtr>						known;
 	/** \brief map a node to its clone in the output */
-	hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >		map_clone;
+	unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >		map_clone;
 	/** \brief map a cloned node back to its original node */
-	hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >		map_clone_back;
+	unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >		map_clone_back;
 	/** \brief set of dummy nodes we need to clean afterwards */
 	set<xmlNodePtr>						dummy_nodes;
 

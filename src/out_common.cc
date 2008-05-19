@@ -25,8 +25,8 @@ void calcLIS(vector<pair<xmlNodePtr, xmlNodePtr> >& p1, vector<xmlNodePtr>& p2, 
 	vector<xmlNodePtr>::iterator pos2;
 	/* map node ptrs to pos */
 	int l = 0;
-	hash_map<xmlNodePtr, int, hash<void*> > m; /* local numbers */
-	hash_map<xmlNodePtr, int, hash<void*> >::iterator mi;
+	unordered_map<xmlNodePtr, int, hash<void*> > m; /* local numbers */
+	unordered_map<xmlNodePtr, int, hash<void*> >::iterator mi;
 	/* assign increasing sequence of numbers to nodes that might appear
 	 * in second chain as well */
 	for (pos1 = p1.begin(); pos1 != p1.end(); pos1++) {

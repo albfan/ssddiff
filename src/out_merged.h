@@ -54,11 +54,11 @@ private:
 	/** \brief recursively calculate actions */
 	void recCalcActions(xmlNodePtr diff, xmlNsPtr ns,
 		xmlNodePtr p1, xmlNodePtr p2,
-		hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map,
+		unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map,
 		set<xmlNodePtr>& known, int output_only);
 	/** \brief diff attributes, TODO: rewrite this */
 	void diffAttributes(xmlNodePtr diff, xmlNsPtr ns, xmlNodePtr p1, xmlNodePtr p2,
-		hash_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map,
+		unordered_map<xmlNodePtr, xmlNodePtr, hash<void*> >& map,
 		set<xmlNodePtr>& known, int output_only);
 public:
 	/** \brief create a new merged writer object */

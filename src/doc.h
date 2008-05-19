@@ -102,9 +102,9 @@ public:
 	std::set<void* >	processed;
 #endif
 	/** \brief map to find the Node object for a given libxml node */
-	hash_map<xmlNodePtr, Node*, hash<void*> >	xml_to_node;
+	unordered_map<xmlNodePtr, Node*, hash<void*> >	xml_to_node;
 	/** \brief count of relations in file to calculate credits */
-	hash_map<RelEqClass, int, hash_releqc>		relcount;
+	unordered_map<RelEqClass, int, hash_releqc>		relcount;
 
 	/** \brief load an XML document using libxml
 	 *  \param filename filename to be loaded

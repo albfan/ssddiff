@@ -16,13 +16,13 @@
 
 #include <iostream>
 #include <map>
-#include <ext/hash_map>
+#include <tr1/unordered_map>
 #include <cstring>
 
 #include <libxml/tree.h> /* for xmlChar */
 
 using namespace std;
-using namespace __gnu_cxx;
+using namespace std::tr1;
 
 namespace SSD {
 
@@ -40,7 +40,7 @@ class ustring {
 	const char* cstr;
 
 	/** \brief global store for "unified" strings */
-	static hash_map< const char*, const char*, hash<char*>, eq_str> store;
+	static unordered_map< const char*, const char*, hash<const char*>, eq_str> store;
 public:
 	/** \brief unify a char string */
 	/** \param s char string to be unified */
