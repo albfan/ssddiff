@@ -30,7 +30,8 @@ struct hashstr {
 	std::size_t operator()(const char* s) const {
 		/* I'm not sure how portable this references is.
 		 * It's accessing an internal part of the TR1 implementation */
-		return std::tr1::_Fnv_hash<>::hash(s, strlen(s));
+	        return 0;
+		//return std::tr1::hash(s, strlen(s));
 	}
 };
 
