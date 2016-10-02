@@ -28,4 +28,4 @@ AC_CHECK_HEADERS(fstream,,AC_MSG_WARN(STL classes missing 'fstream'?))
 AC_CHECK_HEADERS(iostream,,AC_MSG_WARN(STL classes missing 'iostream'?))
 AC_CHECK_HEADERS(sstream,,AC_MSG_WARN(STL classes missing 'sstream'?))
 
-AC_OUTPUT([Makefile src/Makefile])
+AC_OUTPUT([Makefile src/Makefile test/Makefile])

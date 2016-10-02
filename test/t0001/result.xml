@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<root xmlns:md="http://xmldesign.de/XML/diff/merged/0.1">
+  <test name="Delete test">
+    <a md:node="del"/>
+  </test>
+  <test name="Insert test">
+  <b md:node="ins"/>
+  </test>
+  <test name="Move test">
+    <c>
+      <d/>
+      <e md:node="moved-away"/>
+    </c>
+    <c>
+      <e md:node="moved-here"/>
+      <f/>
+    </c>
+  </test>
+  <test name="Nesting test">
+    <g md:node="moved-away"><h md:node="moved-away"/></g>
+  <h md:node="moved-here"><g md:node="moved-here"/></h>
+  </test>
+  <test name="Delete text test"><md:t-deleted>
+    Text to be deleted
+  </md:t-deleted>
+  </test>
+  <test name="Insert text test">
+  <md:t-inserted>
+    Text that was added
+  </md:t-inserted></test>
+  <test name="Move test">
+    <i><md:t-moved-away>Text to be moved</md:t-moved-away></i>
+    <j><md:t-moved-here>Text to be moved</md:t-moved-here></j>
+  </test>
+  <test name="Text collission test">
+    <k><md:t-moved-away>Text flip 1</md:t-moved-away><md:t-moved-here>Text flip 2</md:t-moved-here><l/><l/><md:t-moved-away>Text flip 2</md:t-moved-away><md:t-moved-here>Text flip 1</md:t-moved-here></k>
+  </test>
+</root>

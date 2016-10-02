@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<root xmlns:md="http://xmldesign.de/XML/diff/merged/0.1">
+  <test name="Attribute delete test">
+    <node md:a-deleted="testa" testa="yes"/>
+  </test>
+  <test name="Attribute add test">
+    <node md:a-inserted="testb" testb="yes"/>
+  </test>
+  <test name="Attribute move test">
+    <node><md:attr-moved-away testc="yes"/></node>
+    <node testc="yes" md:a-moved-here="testc"/>
+  </test>
+</root>

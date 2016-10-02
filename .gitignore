@@ -17,3 +17,8 @@ missing
 depcomp
 compile
 install-sh
+test/*.log
+test/*.trs
+test/*/output.xml
+test-driver
+test/test-results/
