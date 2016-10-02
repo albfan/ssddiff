@@ -1,0 +1,13 @@
+language: generic
+
+sudo: false
+
+script: 
+   - ./autogen.sh
+   - ./configure
+   - make
+   - make check
+
+notifications:
+  email:
+    -  albertofanjul@gmail.com
